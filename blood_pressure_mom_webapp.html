@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f7fb">
+<title>บันทึกความดันของแม่</title>
+<style>
+:root{--ink:#1f2937;--muted:#667085;--blue:#2864dc;--line:#e6eaf0;--bg:#f5f7fb;--white:#fff;--red:#b42318;--green:#157347}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,sans-serif;font-size:16px}
+main{max-width:760px;margin:auto;padding:20px 16px 48px}
+header{padding:10px 2px 18px}h1{font-size:27px;margin:0 0 5px;letter-spacing:-.4px}.sub{color:var(--muted);font-size:14px}
+.card{background:var(--white);border:1px solid var(--line);border-radius:18px;padding:18px;margin:12px 0;box-shadow:0 3px 14px rgba(16,24,40,.035)}
+h2{font-size:18px;margin:0 0 14px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+label{display:block;font-size:14px;font-weight:650;margin:0 0 7px;color:#344054}
+input,select,textarea{width:100%;font:inherit;border:1px solid #d0d5dd;border-radius:12px;padding:13px;background:#fff;color:var(--ink);min-height:49px}
+input:focus,select:focus,textarea:focus{outline:3px solid #dbeafe;border-color:var(--blue)}
+textarea{min-height:76px;resize:vertical}
+.field{margin-bottom:13px}.hint{font-size:12px;color:var(--muted);margin-top:5px}
+button{border:0;border-radius:12px;padding:13px 16px;font:inherit;font-weight:700;cursor:pointer;min-height:48px}
+.primary{background:var(--blue);color:#fff;width:100%}.secondary{background:#eef2ff;color:#244db5}.danger{background:#fff1f0;color:var(--red);padding:9px 11px;min-height:38px;font-size:13px}
+.summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px}
+.metric{background:#f8fafc;border:1px solid var(--line);border-radius:14px;padding:12px}
+.metric span{font-size:12px;color:var(--muted);display:block}.metric strong{font-size:23px;display:block;margin-top:4px}.metric small{font-size:11px;color:var(--muted)}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:12px}
+.toolbar input{max-width:190px;min-height:42px;padding:9px}
+.entry{border:1px solid var(--line);border-radius:14px;padding:13px;margin:9px 0;background:#fff}
+.entrytop{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.reading{font-size:21px;font-weight:800;letter-spacing:-.4px}.reading small{font-size:12px;color:var(--muted);font-weight:500}
+.meta{font-size:13px;color:var(--muted);line-height:1.7;margin-top:5px}
+.tag{display:inline-block;background:#eef4ff;color:#244db5;border-radius:20px;padding:4px 9px;font-size:12px;font-weight:650}
+.empty{text-align:center;color:var(--muted);padding:24px 8px}
+.note{background:#fff8e8;border:1px solid #f3dfb2;border-radius:13px;padding:13px;font-size:13px;line-height:1.65;color:#704d12}
+.actions{display:flex;gap:8px;flex-wrap:wrap}.actions button{flex:1}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:10px}
+@media(max-width:420px){main{padding:15px 12px 36px}h1{font-size:24px}.card{padding:15px}.summary{gap:6px}.metric{padding:9px}.metric strong{font-size:20px}.grid{gap:9px}}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <h1>บันทึกความดันของแม่</h1>
+  <div class="sub">บันทึกง่าย ๆ ดูย้อนหลังได้ในมือถือเครื่องนี้</div>
+</header>
+
+<section class="card">
+  <h2>ค่าล่าสุด</h2>
+  <div class="summary">
+    <div class="metric"><span>ตัวบน · SYS</span><strong id="lastSys">—</strong><small>mmHg</small></div>
+    <div class="metric"><span>ตัวล่าง · DIA</span><strong id="lastDia">—</strong><small>mmHg</small></div>
+    <div class="metric"><span>ชีพจร · Pulse</span><strong id="lastPulse">—</strong><small>ครั้ง/นาที</small></div>
+  </div>
+  <div class="hint" id="lastWhen">ยังไม่มีข้อมูล</div>
+</section>
+
+<section class="card">
+  <h2 id="formTitle">เพิ่มผลการวัด</h2>
+  <form id="entryForm">
+    <div class="grid">
+      <div class="field"><label for="date">วันที่</label><input id="date" type="date" required></div>
+      <div class="field"><label for="time">เวลา</label><input id="time" type="time" required></div>
+      <div class="field"><label for="sys">ความดันตัวบน (SYS)</label><input id="sys" type="number" inputmode="numeric" min="50" max="300" placeholder="เช่น 120" required></div>
+      <div class="field"><label for="dia">ความดันตัวล่าง (DIA)</label><input id="dia" type="number" inputmode="numeric" min="30" max="200" placeholder="เช่น 80" required></div>
+      <div class="field"><label for="pulse">ชีพจร (ครั้ง/นาที)</label><input id="pulse" type="number" inputmode="numeric" min="25" max="250" placeholder="เช่น 72"></div>
+      <div class="field"><label for="period">ช่วงเวลา</label><select id="period"><option value="เช้า">ตอนเช้า</option><option value="เย็น">ตอนเย็น</option><option value="อื่น ๆ">เวลาอื่น ๆ</option></select></div>
+    </div>
+    <div class="field"><label for="note">หมายเหตุ (ไม่บังคับ)</label><textarea id="note" placeholder="เช่น ก่อน/หลังรับประทานยา หรือมีอาการอะไร"></textarea></div>
+    <button class="primary" type="submit" id="saveBtn">บันทึกผลการวัด</button>
+    <button type="button" id="cancelEdit" class="secondary" style="display:none;width:100%;margin-top:8px">ยกเลิกการแก้ไข</button>
+  </form>
+</section>
+
+<section class="card">
+  <div class="toolbar">
+    <h2 style="margin:0">ประวัติการวัด</h2>
+    <input id="filterDate" type="month" aria-label="กรองตามเดือน">
+  </div>
+  <div class="actions" style="margin-bottom:12px">
+    <button class="secondary" id="exportBtn" type="button">ส่งออก CSV</button>
+    <button class="secondary" id="allBtn" type="button">ดูทั้งหมด</button>
+  </div>
+  <div id="history"><div class="empty">ยังไม่มีรายการบันทึก</div></div>
+</section>
+
+<div class="note">
+  <strong>ข้อควรรู้:</strong> แอปนี้ใช้จดบันทึกเท่านั้น ไม่ได้วินิจฉัยโรคหรือปรับยาให้โดยอัตโนมัติ ควรวัดตามคำแนะนำของบุคลากรทางการแพทย์ หากวัดได้ตั้งแต่ 180 ตัวบน หรือ 120 ตัวล่างขึ้นไป ให้นั่งพักและวัดซ้ำหลังอย่างน้อย 1 นาที หากยังสูงมากให้ติดต่อบุคลากรทางการแพทย์ทันที และหากมีเจ็บหน้าอก หายใจลำบาก อ่อนแรง/ชาฉับพลัน สับสน หรือการมองเห็นเปลี่ยนไป ให้โทร 1669
+</div>
+<footer>ข้อมูลเก็บไว้ในเบราว์เซอร์ของเครื่องนี้เท่านั้น</footer>
+</main>
+<script>
+const KEY='mom_bp_records_v1';
+const $=id=>document.getElementById(id);
+let records=[];
+let editingId=null;
+try{records=JSON.parse(localStorage.getItem(KEY)||'[]');if(!Array.isArray(records))records=[];}catch(e){records=[];}
+const pad=n=>String(n).padStart(2,'0');
+function localDateTime(){const d=new Date();return {date:`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`,time:`${pad(d.getHours())}:${pad(d.getMinutes())}`};}
+function save(){localStorage.setItem(KEY,JSON.stringify(records));}
+function fmtDate(s){if(!s)return '';const [y,m,d]=s.split('-');return `${d}/${m}/${Number(y)+543}`;}
+function sorted(){return [...records].sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time));}
+function render(){
+ const list=sorted(),latest=list[0];
+ $('lastSys').textContent=latest?latest.sys:'—';$('lastDia').textContent=latest?latest.dia:'—';$('lastPulse').textContent=latest?.pulse??'—';
+ $('lastWhen').textContent=latest?`บันทึกล่าสุด ${fmtDate(latest.date)} เวลา ${latest.time}`:'ยังไม่มีข้อมูล';
+ const month=$('filterDate').value;
+ const shown=month?list.filter(r=>r.date.startsWith(month)):list;
+ $('history').innerHTML=shown.length?shown.map(r=>`
+ <article class="entry">
+  <div class="entrytop"><div><div class="reading">${r.sys}/${r.dia} <small>mmHg</small></div>
+  <div class="meta">${fmtDate(r.date)} · ${r.time} · ${r.period} ${r.pulse?`· ชีพจร ${r.pulse} ครั้ง/นาที`:''}</div></div>
+  <span class="tag">${r.period}</span></div>
+  ${r.note?`<div class="meta">หมายเหตุ: ${escapeHtml(r.note)}</div>`:''}
+  <div class="actions" style="margin-top:10px"><button class="secondary" type="button" onclick="editRecord('${r.id}')">แก้ไข</button><button class="danger" type="button" onclick="deleteRecord('${r.id}')">ลบ</button></div>
+ </article>`).join(''):'<div class="empty">ไม่พบข้อมูลในช่วงเวลานี้</div>';
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function resetForm(){editingId=null;$('entryForm').reset();const now=localDateTime();$('date').value=now.date;$('time').value=now.time;$('formTitle').textContent='เพิ่มผลการวัด';$('saveBtn').textContent='บันทึกผลการวัด';$('cancelEdit').style.display='none';}
+$('entryForm').addEventListener('submit',e=>{
+ e.preventDefault();
+ const sys=Number($('sys').value),dia=Number($('dia').value),pulse=$('pulse').value?Number($('pulse').value):null;
+ if(sys<=dia){alert('กรุณาตรวจสอบค่าอีกครั้ง: ตัวบนควรมากกว่าตัวล่าง');return;}
+ const item={id:editingId||`${Date.now()}_${Math.random().toString(16).slice(2)}`,date:$('date').value,time:$('time').value,sys,dia,pulse,period:$('period').value,note:$('note').value.trim()};
+ if(editingId){records=records.map(r=>r.id===editingId?item:r);}else{records.push(item);}
+ save();resetForm();render();
+});
+window.editRecord=id=>{const r=records.find(x=>x.id===id);if(!r)return;editingId=id;['date','time','sys','dia','pulse','period','note'].forEach(k=>$(k).value=r[k]??'');$('formTitle').textContent='แก้ไขผลการวัด';$('saveBtn').textContent='บันทึกการแก้ไข';$('cancelEdit').style.display='block';window.scrollTo({top:0,behavior:'smooth'});};
+window.deleteRecord=id=>{if(!confirm('ต้องการลบรายการนี้ใช่หรือไม่?'))return;records=records.filter(r=>r.id!==id);save();render();};
+$('cancelEdit').onclick=resetForm;
+$('filterDate').onchange=render;
+$('allBtn').onclick=()=>{$('filterDate').value='';render();};
+$('exportBtn').onclick=()=>{
+ if(!records.length){alert('ยังไม่มีข้อมูลสำหรับส่งออก');return;}
+ const rows=[['วันที่','เวลา','SYS (mmHg)','DIA (mmHg)','ชีพจร (ครั้ง/นาที)','ช่วงเวลา','หมายเหตุ'],...sorted().map(r=>[r.date,r.time,r.sys,r.dia,r.pulse??'',r.period,r.note??''])];
+ const csv='\uFEFF'+rows.map(row=>row.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\r\n');
+ const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+ a.href=url;a.download='blood-pressure-records.csv';a.click();URL.revokeObjectURL(url);
+};
+resetForm();render();
+</script>
+</body>
+</html>
